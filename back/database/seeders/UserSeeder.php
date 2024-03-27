@@ -14,13 +14,22 @@ class UserSeeder extends Seeder
     {
         //
         DB::table('users')->insert([
-            'name' => 'Jasseyda',
-            'lastname' => 'Aljorna',
-            'email' => 'jasseyda@gmail.com',
-            'password' => bcrypt('clave123'),
-            'phone' => '123456789',
-            'rango' => 'admin',
-
+            [
+                'name' => 'Jasseyda',
+                'lastname' => 'Aljorna',
+                'email' => 'jasseyda@gmail.com',
+                'password' => bcrypt('clave123'),
+                'phone' => '123456789',
+                'rango' => 'admin',
+            ],
+            [
+                'name' => 'Hilaimar',
+                'lastname' => 'Apellido',
+                'email' => 'hilaimar@gmail.com',
+                'password' => bcrypt('clave123'),
+                'phone' => '123456789',
+                'rango' => 'admin',
+            ]
         ]);
     }
 }
