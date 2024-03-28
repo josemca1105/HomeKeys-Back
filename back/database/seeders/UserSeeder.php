@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
                 'email' => 'jasseyda@gmail.com',
                 'password' => bcrypt('clave123'),
                 'phone' => '123456789',
+                'image' => 'default.png',
                 'rango' => 'admin',
             ],
             [
@@ -28,6 +29,7 @@ class UserSeeder extends Seeder
                 'email' => 'hilaimar@gmail.com',
                 'password' => bcrypt('clave123'),
                 'phone' => '123456789',
+                'image' => 'default.png',
                 'rango' => 'admin',
             ]
         ]);
