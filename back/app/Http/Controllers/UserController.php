@@ -40,48 +40,60 @@ class UserController extends Controller
     // Guardar Usuarios
     public function store(Request $request)
     {
-        try {
-            $imageName = 'default.png';
+        $imageName = 'default.png';
 
-            if ($request->hasFile('image')) {
+        if ($request->hasFile('image')) {
+            try {
+                $request->validate([
+                    'image' => 'mimes:jpeg,png,jpg', // Validar si la imagen es jpeg, png o jpg
+                ]);
+
                 $img = $request->file('image');
                 $imageName = time() . '.' . $img->getClientOriginalExtension();
                 $img->move(public_path('images'), $imageName);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json([
+                    'message' => 'Formato incorrecto de imagen',
+                ], 400);
             }
-
-            $usuario = new User();
-            $usuario->name = $request->name;
-            $usuario->lastname = $request->lastname;
-            $usuario->email = $request->email;
-            $usuario->password = bcrypt($request->password);
-            $usuario->phone = $request->phone;
-            $usuario->image = $imageName;
-
-            $usuario->save();
-            return response()->json([
-                'status' => 200,
-                'message' => 'Usuario creado correctamente',
-                'path' => asset('images/'.$imageName),
-                'usuario' => [
-                    'id' => $usuario->id,
-                    'name' => $usuario->name,
-                    'lastname' => $usuario->lastname,
-                    'email' => $usuario->email,
-                    'phone' => $usuario->phone,
-                    'rango' => $usuario->rango,
-                ]
-            ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => 'Error al crear el usuario',
-            ], 500);
         }
+
+        $usuario = new User();
+        $usuario->name = $request->name;
+        $usuario->lastname = $request->lastname;
+        $usuario->email = $request->email;
+        $usuario->password = bcrypt($request->password);
+        $usuario->phone = $request->phone;
+        $usuario->image = $imageName;
+
+        $usuario->save();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Usuario creado correctamente',
+            'path' => asset('images/'.$imageName),
+            'usuario' => [
+                'id' => $usuario->id,
+                'name' => $usuario->name,
+                'lastname' => $usuario->lastname,
+                'email' => $usuario->email,
+                'phone' => $usuario->phone,
+                'rango' => $usuario->rango,
+            ]
+        ], 200);
     }
 
     // Obtener Imagen
     public function getImage($id)
     {
-        $usuario = User::findOrFail($id);
+        $usuario = User::find($id);
+
+        if (!$usuario) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+
         $path = public_path('images/'.$usuario->image);
 
         if (!File::exists($path)) {
@@ -105,19 +117,29 @@ class UserController extends Controller
             ], 404);
         }
 
+        $imageName = 'default.png';
+
         if ($request->hasFile('image')) {
-            $img = $request->file('image');
-            $imageName = time() . '.' . $img->getClientOriginalExtension();
-            $img->move(public_path('images'), $imageName);
-            $usuario->image = $imageName;
-        } elseif (!$usuario->image) {
-            $usuario->image = 'default.png';
+            try {
+                $request->validate([
+                    'image' => 'mimes:jpeg,png,jpg', // Validar si la imagen es jpeg, png o jpg
+                ]);
+
+                $img = $request->file('image');
+                $imageName = time() . '.' . $img->getClientOriginalExtension();
+                $img->move(public_path('images'), $imageName);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json([
+                    'message' => 'Formato incorrecto de imagen',
+                ], 400);
+            }
         }
 
         $usuario->name = $request->name;
         $usuario->lastname = $request->lastname;
         $usuario->email = $request->email;
         $usuario->phone = $request->phone;
+        $usuario->image = $imageName;
 
         $usuario->save();
 
