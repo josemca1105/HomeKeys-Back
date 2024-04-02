@@ -50,7 +50,7 @@ class UserController extends Controller
 
                 $img = $request->file('image');
                 $imageName = time() . '.' . $img->getClientOriginalExtension();
-                $img->move(public_path('images'), $imageName);
+                $img->move(public_path('images/users'), $imageName);
             } catch (\Illuminate\Validation\ValidationException $e) {
                 return response()->json([
                     'message' => 'Formato incorrecto de imagen',
@@ -127,7 +127,7 @@ class UserController extends Controller
 
                 $img = $request->file('image');
                 $imageName = time() . '.' . $img->getClientOriginalExtension();
-                $img->move(public_path('images'), $imageName);
+                $img->move(public_path('images/users'), $imageName);
             } catch (\Illuminate\Validation\ValidationException $e) {
                 return response()->json([
                     'message' => 'Formato incorrecto de imagen',

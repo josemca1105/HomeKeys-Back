@@ -19,3 +19,5 @@ Route::get('imagen/{id}', [App\Http\Controllers\UserController::class, 'getImage
 
 // Rutas Casas
 Route::get('/casas', [App\Http\Controllers\CasaController::class, 'index']);
+Route::get('/casas/{id}', [App\Http\Controllers\CasaController::class, 'show']);
+Route::post('/casas-create', [App\Http\Controllers\CasaController::class, 'store']);
