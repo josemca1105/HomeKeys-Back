@@ -16,3 +16,6 @@ Route::delete('/users-delete/{id}', [App\Http\Controllers\UserController::class,
 
 // Obtener imagen de usuario
 Route::get('imagen/{id}', [App\Http\Controllers\UserController::class, 'getImage']);
+
+// Rutas Casas
+Route::get('/casas', [App\Http\Controllers\CasaController::class, 'index']);
