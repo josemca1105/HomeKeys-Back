@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -40,46 +41,62 @@ class UserController extends Controller
     // Guardar Usuarios
     public function store(Request $request)
     {
-        $imageName = 'default.png';
+        DB::beginTransaction();
 
-        if ($request->hasFile('image')) {
-            try {
-                $request->validate([
-                    'image' => 'mimes:jpeg,png,jpg', // Validar si la imagen es jpeg, png o jpg
-                ]);
+        try {
+            $imageName = 'default.png';
 
-                $img = $request->file('image');
-                $imageName = time() . '.' . $img->getClientOriginalExtension();
-                $img->move(public_path('images/users'), $imageName);
-            } catch (\Illuminate\Validation\ValidationException $e) {
+            $usuario = User::firstOrCreate(
+                ['email' => $request->email],
+                [
+                    'name' => $request->name,
+                    'lastname' => $request->lastname,
+                    'phone' => $request->phone,
+                    'password' => bcrypt($request->password),
+                ]
+            );
+
+            // Validar si el usuario ya existe
+            if ($usuario->wasRecentlyCreated) {
+                // Save the image only if the user was recently created
+                if ($request->hasFile('image')) {
+                    $request->validate([
+                        'image' => 'mimes:jpeg,png,jpg', // Validate if the image is jpeg, png or jpg
+                    ]);
+
+                    $img = $request->file('image');
+                    $imageName = time() . '.' . $img->getClientOriginalExtension();
+                    $img->move(public_path('images/users'), $imageName);
+                    $usuario->image = $imageName;
+                    $usuario->save();
+                }
+
+                DB::commit();
+
                 return response()->json([
-                    'message' => 'Formato incorrecto de imagen',
-                ], 400);
+                    'status' => 200,
+                    'message' => 'Usuario creado correctamente',
+                    'path' => asset('images/users/'.$imageName),
+                    'usuario' => [
+                        'id' => $usuario->id,
+                        'name' => $usuario->name,
+                        'email' => $usuario->email,
+                    ]
+                ]);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 409,
+                    'message' => 'Este usuario ya existe',
+                ], 409);
             }
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Formato incorrecto de imagen, debe ser jpeg, png o jpg',
+            ], 400);
         }
-
-        $usuario = new User();
-        $usuario->name = $request->name;
-        $usuario->lastname = $request->lastname;
-        $usuario->email = $request->email;
-        $usuario->password = bcrypt($request->password);
-        $usuario->phone = $request->phone;
-        $usuario->image = $imageName;
-
-        $usuario->save();
-        return response()->json([
-            'status' => 200,
-            'message' => 'Usuario creado correctamente',
-            'path' => asset('images/'.$imageName),
-            'usuario' => [
-                'id' => $usuario->id,
-                'name' => $usuario->name,
-                'lastname' => $usuario->lastname,
-                'email' => $usuario->email,
-                'phone' => $usuario->phone,
-                'rango' => $usuario->rango,
-            ]
-        ], 200);
     }
 
     // Obtener Imagen

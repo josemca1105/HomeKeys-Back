@@ -21,3 +21,5 @@ Route::get('imagen/{id}', [App\Http\Controllers\UserController::class, 'getImage
 Route::get('/casas', [App\Http\Controllers\CasaController::class, 'index']);
 Route::get('/casas/{id}', [App\Http\Controllers\CasaController::class, 'show']);
 Route::post('/casas-create', [App\Http\Controllers\CasaController::class, 'store']);
+Route::post('/casas-update/{id}', [App\Http\Controllers\CasaController::class, 'update']);
+Route::delete('/casas-delete/{id}', [App\Http\Controllers\CasaController::class, 'destroy']);
