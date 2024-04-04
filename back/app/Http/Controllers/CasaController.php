@@ -39,8 +39,8 @@ class CasaController extends Controller
                     'status' => $casa->status
                 ]
             ], 200);
-        }else{
-            return response()->json(['error' => 'casa no encontrado'], 404);
+        } else{
+            return response()->json(['error' => 'Casa no encontrada'], 404);
         }
     }
 
